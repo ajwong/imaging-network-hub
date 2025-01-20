@@ -1,8 +1,22 @@
-import { Link } from "react-router-dom";
-import { Bell, MessageSquare, Search, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Bell, MessageSquare, Search, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate("/auth");
+      toast.success("Logged out successfully");
+    } catch (error) {
+      toast.error("Error logging out");
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
       <div className="container mx-auto px-4">
@@ -33,6 +47,9 @@ export const Navbar = () => {
                 <User className="h-5 w-5" />
               </Button>
             </Link>
+            <Button variant="ghost" size="icon" onClick={handleLogout}>
+              <LogOut className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </div>
