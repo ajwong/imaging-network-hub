@@ -14,7 +14,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type Post = Database['public']['Tables']['posts']['Row'];
-type PostWithProfile = Post & { profiles: Profile };
+type PostWithProfile = Post & { 
+  profiles: Profile | null;
+};
 
 const Feed = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
@@ -26,7 +28,14 @@ const Feed = () => {
     queryFn: async () => {
       const { data: postsData, error: postsError } = await supabase
         .from("posts")
-        .select(`*, profiles:user_id(*)`)
+        .select(`
+          *,
+          profiles:user_id (
+            full_name,
+            username,
+            avatar_url
+          )
+        `)
         .order("created_at", { ascending: false });
 
       if (postsError) {
