@@ -2,13 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, MessageSquare } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CreatePost } from "@/components/feed/CreatePost";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { format } from "date-fns";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 type PostWithProfile = Database['public']['Tables']['posts']['Row'] & {
   profiles: Database['public']['Tables']['profiles']['Row'] | null
@@ -16,6 +17,8 @@ type PostWithProfile = Database['public']['Tables']['posts']['Row'] & {
 
 const Feed = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
+  const [isTrendingOpen, setIsTrendingOpen] = useState(true);
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ["posts"],
@@ -23,9 +26,7 @@ const Feed = () => {
       const { data: postsData, error: postsError } = await supabase
         .from("posts")
         .select(`
-          *,
-          profiles!posts_user_id_fkey(*)
-        `)
+          *
         .order("created_at", { ascending: false });
 
       if (postsError) {
@@ -33,7 +34,7 @@ const Feed = () => {
         throw postsError;
       }
 
-      return (postsData || []) as PostWithProfile[];
+      return postsData as PostWithProfile[];
     },
   });
 
@@ -88,33 +89,73 @@ const Feed = () => {
     <div className="grid grid-cols-12 gap-6 py-6">
       {/* Left Sidebar */}
       <div className="col-span-2 hidden lg:block">
-        <div className="sticky top-20">
+        <div className="sticky top-20 space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Categories</CardTitle>
+            <CardHeader className="pb-4">
+              <Collapsible open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Categories</CardTitle>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
+                      <ChevronDown className={`h-4 w-4 transition-transform ${isCategoriesOpen ? 'transform rotate-180' : ''}`} />
+                    </Button>
+                  </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent className="pt-2">
+                  <nav className="space-y-2">
+                    <Button variant="ghost" className="w-full justify-start">
+                      All Posts
+                    </Button>
+                    <Button variant="ghost" className="w-full justify-start">
+                      Clinical Cases
+                    </Button>
+                    <Button variant="ghost" className="w-full justify-start">
+                      Research
+                    </Button>
+                    <Button variant="ghost" className="w-full justify-start">
+                      Discussion
+                    </Button>
+                  </nav>
+                </CollapsibleContent>
+              </Collapsible>
             </CardHeader>
-            <CardContent>
-              <nav className="space-y-2">
-                <Button variant="ghost" className="w-full justify-start">
-                  All Posts
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  Clinical Cases
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  Research
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  Discussion
-                </Button>
-              </nav>
-            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-4">
+              <Collapsible open={isTrendingOpen} onOpenChange={setIsTrendingOpen}>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Trending Topics</CardTitle>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
+                      <ChevronDown className={`h-4 w-4 transition-transform ${isTrendingOpen ? 'transform rotate-180' : ''}`} />
+                    </Button>
+                  </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent className="pt-2">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="h-2 w-2 bg-blue-500 rounded-full" />
+                      <span className="text-sm">Radiology AI Updates</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="h-2 w-2 bg-green-500 rounded-full" />
+                      <span className="text-sm">New Treatment Protocols</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="h-2 w-2 bg-purple-500 rounded-full" />
+                      <span className="text-sm">Medical Technology</span>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </CardHeader>
           </Card>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="col-span-12 lg:col-span-7">
+      <div className="col-span-12 lg:col-span-10">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Community Feed</h1>
           <Button onClick={() => setShowCreatePost(true)}>Create Post</Button>
@@ -171,33 +212,6 @@ const Feed = () => {
               </CardFooter>
             </Card>
           ))}
-        </div>
-      </div>
-
-      {/* Right Sidebar */}
-      <div className="col-span-3 hidden lg:block">
-        <div className="sticky top-20">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Trending Topics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <div className="h-2 w-2 bg-blue-500 rounded-full" />
-                  <span className="text-sm">Radiology AI Updates</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="h-2 w-2 bg-green-500 rounded-full" />
-                  <span className="text-sm">New Treatment Protocols</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="h-2 w-2 bg-purple-500 rounded-full" />
-                  <span className="text-sm">Medical Technology</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
