@@ -12,7 +12,7 @@ import { format } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 type PostWithProfile = Database['public']['Tables']['posts']['Row'] & {
-  profiles: Database['public']['Tables']['profiles']['Row'] | null
+  profiles: Database['public']['Tables']['profiles']['Row']
 };
 
 const Feed = () => {
@@ -27,7 +27,7 @@ const Feed = () => {
         .from("posts")
         .select(`
           *,
-          profiles(*)
+          profiles:user_id(*)
         `)
         .order("created_at", { ascending: false });
 
@@ -89,7 +89,6 @@ const Feed = () => {
 
   return (
     <div className="grid grid-cols-12 gap-6 py-6">
-      {/* Left Sidebar */}
       <div className="col-span-2 hidden lg:block">
         <div className="sticky top-20 space-y-4">
           <Card>
@@ -99,7 +98,7 @@ const Feed = () => {
                   <CardTitle className="text-lg">Categories</CardTitle>
                   <CollapsibleTrigger asChild>
                     <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                      <ChevronDown className={`h-4 w-4 transition-transform ${isCategoriesOpen ? "transform rotate-180" : ""}`} />
+                      <ChevronDown className="h-4 w-4 transition-transform" style={{ transform: isCategoriesOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
                     </Button>
                   </CollapsibleTrigger>
                 </div>
@@ -126,7 +125,7 @@ const Feed = () => {
                   <CardTitle className="text-lg">Trending Topics</CardTitle>
                   <CollapsibleTrigger asChild>
                     <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                      <ChevronDown className={`h-4 w-4 transition-transform ${isTrendingOpen ? "transform rotate-180" : ""}`} />
+                      <ChevronDown className="h-4 w-4 transition-transform" style={{ transform: isTrendingOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
                     </Button>
                   </CollapsibleTrigger>
                 </div>
@@ -152,7 +151,6 @@ const Feed = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="col-span-12 lg:col-span-10">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Community Feed</h1>
@@ -171,7 +169,7 @@ const Feed = () => {
                   <div>
                     <CardTitle className="text-xl mb-2">{post.title}</CardTitle>
                     <p className="text-sm text-gray-500">
-                      Posted by {post.profiles?.full_name || post.profiles?.username || "Anonymous"} •{" "}
+                      Posted by {post.profiles?.full_name || "Anonymous"} •{" "}
                       {format(new Date(post.created_at), "PPp")}
                     </p>
                   </div>
