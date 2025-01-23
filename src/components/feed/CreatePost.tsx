@@ -24,11 +24,18 @@ export const CreatePost = ({ onClose }: CreatePostProps) => {
       return;
     }
 
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("You must be logged in to create a post");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const { error } = await supabase.from("posts").insert({
         title,
         content,
+        user_id: user.id
       });
 
       if (error) throw error;

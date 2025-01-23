@@ -18,7 +18,7 @@ const Feed = () => {
         .from("posts")
         .select(`
           *,
-          profiles:user_id (
+          profiles (
             username,
             full_name
           )
@@ -31,11 +31,18 @@ const Feed = () => {
   });
 
   const handleVote = async (postId: string, voteType: boolean) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("You must be logged in to vote");
+      return;
+    }
+
     try {
       const { data: existingVote } = await supabase
         .from("votes")
         .select("*")
         .eq("post_id", postId)
+        .eq("user_id", user.id)
         .single();
 
       if (existingVote) {
@@ -52,7 +59,8 @@ const Feed = () => {
       } else {
         await supabase.from("votes").insert({
           post_id: postId,
-          vote_type: voteType,
+          user_id: user.id,
+          vote_type: voteType
         });
         toast.success("Vote recorded");
       }
