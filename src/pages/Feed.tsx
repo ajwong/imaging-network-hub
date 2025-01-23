@@ -20,37 +20,14 @@ const Feed = () => {
   const { data: posts, isLoading } = useQuery({
     queryKey: ["posts"],
     queryFn: async () => {
-      // First get posts with user_ids
       const { data: postsData, error: postsError } = await supabase
         .from("posts")
-        .select("*")
+        .select("*, profile:profiles(*)")
         .order("created_at", { ascending: false });
 
       if (postsError) {
         console.error("Error fetching posts:", postsError);
         throw postsError;
-      }
-
-      // Then get profiles for those user_ids
-      if (postsData && postsData.length > 0) {
-        const userIds = [...new Set(postsData.map(post => post.user_id))];
-        const { data: profilesData, error: profilesError } = await supabase
-          .from("profiles")
-          .select("*")
-          .in("id", userIds);
-
-        if (profilesError) {
-          console.error("Error fetching profiles:", profilesError);
-          throw profilesError;
-        }
-
-        // Combine posts with profile data
-        const postsWithProfiles = postsData.map(post => ({
-          ...post,
-          profile: profilesData?.find(profile => profile.id === post.user_id)
-        }));
-
-        return postsWithProfiles;
       }
 
       return postsData || [];
@@ -97,65 +74,128 @@ const Feed = () => {
   };
 
   if (isLoading) {
-    return <div>Loading posts...</div>;
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <div className="animate-pulse">Loading posts...</div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Community Feed</h1>
-        <Button onClick={() => setShowCreatePost(true)}>Create Post</Button>
-      </div>
-
-      {showCreatePost && (
-        <CreatePost onClose={() => setShowCreatePost(false)} />
-      )}
-
-      <div className="space-y-6">
-        {posts?.map((post: PostWithProfile) => (
-          <Card key={post.id}>
+    <div className="grid grid-cols-12 gap-6 py-6">
+      {/* Left Sidebar */}
+      <div className="col-span-2 hidden lg:block">
+        <div className="sticky top-20">
+          <Card>
             <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl mb-2">{post.title}</CardTitle>
-                  <p className="text-sm text-gray-500">
-                    Posted by {post.profile?.full_name || post.profile?.username || "Anonymous"} •{" "}
-                    {format(new Date(post.created_at), "PPp")}
-                  </p>
-                </div>
-              </div>
+              <CardTitle className="text-lg">Categories</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-700">{post.content}</p>
+              <nav className="space-y-2">
+                <Button variant="ghost" className="w-full justify-start">
+                  All Posts
+                </Button>
+                <Button variant="ghost" className="w-full justify-start">
+                  Clinical Cases
+                </Button>
+                <Button variant="ghost" className="w-full justify-start">
+                  Research
+                </Button>
+                <Button variant="ghost" className="w-full justify-start">
+                  Discussion
+                </Button>
+              </nav>
             </CardContent>
-            <CardFooter className="flex justify-between">
-              <div className="flex items-center space-x-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleVote(post.id, true)}
-                >
-                  <ThumbsUp className="h-4 w-4 mr-1" />
-                  {post.upvotes}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleVote(post.id, false)}
-                >
-                  <ThumbsDown className="h-4 w-4 mr-1" />
-                  {post.downvotes}
-                </Button>
-              </div>
-              <Link to={`/post/${post.id}`}>
-                <Button variant="ghost" size="sm">
-                  <MessageSquare className="h-4 w-4 mr-1" />
-                  Discuss
-                </Button>
-              </Link>
-            </CardFooter>
           </Card>
-        ))}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="col-span-12 lg:col-span-7">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Community Feed</h1>
+          <Button onClick={() => setShowCreatePost(true)}>Create Post</Button>
+        </div>
+
+        {showCreatePost && (
+          <CreatePost onClose={() => setShowCreatePost(false)} />
+        )}
+
+        <div className="space-y-4">
+          {posts?.map((post: PostWithProfile) => (
+            <Card key={post.id} className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-xl mb-2">{post.title}</CardTitle>
+                    <p className="text-sm text-gray-500">
+                      Posted by {post.profile?.full_name || post.profile?.username || "Anonymous"} •{" "}
+                      {format(new Date(post.created_at), "PPp")}
+                    </p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700">{post.content}</p>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <div className="flex items-center space-x-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleVote(post.id, true)}
+                    className="hover:bg-green-50"
+                  >
+                    <ThumbsUp className="h-4 w-4 mr-1" />
+                    {post.upvotes}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleVote(post.id, false)}
+                    className="hover:bg-red-50"
+                  >
+                    <ThumbsDown className="h-4 w-4 mr-1" />
+                    {post.downvotes}
+                  </Button>
+                </div>
+                <Link to={`/post/${post.id}`}>
+                  <Button variant="ghost" size="sm">
+                    <MessageSquare className="h-4 w-4 mr-1" />
+                    Discuss
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Right Sidebar */}
+      <div className="col-span-3 hidden lg:block">
+        <div className="sticky top-20">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Trending Topics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 bg-blue-500 rounded-full" />
+                  <span className="text-sm">Radiology AI Updates</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 bg-green-500 rounded-full" />
+                  <span className="text-sm">New Treatment Protocols</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-2 bg-purple-500 rounded-full" />
+                  <span className="text-sm">Medical Technology</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
