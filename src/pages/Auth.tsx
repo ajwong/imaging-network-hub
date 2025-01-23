@@ -33,7 +33,7 @@ const Auth = () => {
     if (event === 'USER_UPDATED') {
       const { error } = await supabase.auth.getSession();
       if (error) {
-        setErrorMessage(getErrorMessage(error));
+        setErrorMessage(getErrorMessage(error as AuthApiError));
       }
     }
     if (event === 'SIGNED_OUT') {
