@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "./components/layout/Layout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Feed from "./pages/Feed";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
@@ -54,6 +55,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Index />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/feed"
+              element={
+                <ProtectedRoute>
+                  <Feed />
                 </ProtectedRoute>
               }
             />
