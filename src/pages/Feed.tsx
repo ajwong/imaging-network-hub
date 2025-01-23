@@ -24,7 +24,7 @@ const Feed = () => {
         .from("posts")
         .select(`
           *,
-          profiles!posts_user_id_fkey(*)
+          profiles(*)
         `)
         .order("created_at", { ascending: false });
 
@@ -33,7 +33,7 @@ const Feed = () => {
         throw postsError;
       }
 
-      return postsData as PostWithProfile[] || [];
+      return (postsData || []) as PostWithProfile[];
     },
   });
 
@@ -125,7 +125,7 @@ const Feed = () => {
         )}
 
         <div className="space-y-4">
-          {posts?.map((post: PostWithProfile) => (
+          {posts?.map((post) => (
             <Card key={post.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
