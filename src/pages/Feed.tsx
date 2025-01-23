@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { format } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type PostWithProfile = Database['public']['Tables']['posts']['Row'] & {
   profiles: Database['public']['Tables']['profiles']['Row']
@@ -88,70 +89,72 @@ const Feed = () => {
   }
 
   return (
-    <div className="grid grid-cols-12 gap-6 py-6">
+    <div className="grid grid-cols-12 gap-6">
       <div className="col-span-2 hidden lg:block">
-        <div className="sticky top-20 space-y-4">
-          <Card>
-            <CardHeader className="pb-4">
-              <Collapsible open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Categories</CardTitle>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                      <ChevronDown className="h-4 w-4 transition-transform" style={{ transform: isCategoriesOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
-                    </Button>
-                  </CollapsibleTrigger>
-                </div>
-                <CollapsibleContent className="pt-2">
-                  <nav className="space-y-2">
-                    <Button variant="ghost" className="w-full justify-start">
-                      All Posts
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start">
-                      Clinical Cases
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start">
-                      Research
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start">
-                      Discussion
-                    </Button>
-                  </nav>
-                </CollapsibleContent>
-              </Collapsible>
-
-              <Collapsible open={isTrendingOpen} onOpenChange={setIsTrendingOpen} className="mt-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Trending Topics</CardTitle>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                      <ChevronDown className="h-4 w-4 transition-transform" style={{ transform: isTrendingOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
-                    </Button>
-                  </CollapsibleTrigger>
-                </div>
-                <CollapsibleContent className="pt-2">
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                      <div className="h-2 w-2 bg-blue-500 rounded-full" />
-                      <span className="text-sm">Radiology AI Updates</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="h-2 w-2 bg-green-500 rounded-full" />
-                      <span className="text-sm">New Treatment Protocols</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="h-2 w-2 bg-purple-500 rounded-full" />
-                      <span className="text-sm">Medical Technology</span>
-                    </div>
+        <div className="sticky top-16 h-[calc(100vh-4rem)]">
+          <Card className="h-full border-0 rounded-none shadow-none">
+            <ScrollArea className="h-full">
+              <div className="space-y-4">
+                <Collapsible open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
+                  <div className="flex items-center justify-between px-4 py-2 hover:bg-accent cursor-pointer">
+                    <CardTitle className="text-sm font-medium">CATEGORIES</CardTitle>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                        <ChevronDown className="h-3 w-3 transition-transform" style={{ transform: isCategoriesOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
+                      </Button>
+                    </CollapsibleTrigger>
                   </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </CardHeader>
+                  <CollapsibleContent>
+                    <nav className="flex flex-col">
+                      <Button variant="ghost" className="justify-start rounded-none h-8 px-6 font-normal">
+                        All Posts
+                      </Button>
+                      <Button variant="ghost" className="justify-start rounded-none h-8 px-6 font-normal">
+                        Clinical Cases
+                      </Button>
+                      <Button variant="ghost" className="justify-start rounded-none h-8 px-6 font-normal">
+                        Research
+                      </Button>
+                      <Button variant="ghost" className="justify-start rounded-none h-8 px-6 font-normal">
+                        Discussion
+                      </Button>
+                    </nav>
+                  </CollapsibleContent>
+                </Collapsible>
+
+                <Collapsible open={isTrendingOpen} onOpenChange={setIsTrendingOpen}>
+                  <div className="flex items-center justify-between px-4 py-2 hover:bg-accent cursor-pointer">
+                    <CardTitle className="text-sm font-medium">TRENDING</CardTitle>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                        <ChevronDown className="h-3 w-3 transition-transform" style={{ transform: isTrendingOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
+                      </Button>
+                    </CollapsibleTrigger>
+                  </div>
+                  <CollapsibleContent>
+                    <div className="space-y-2 px-6 py-2">
+                      <div className="flex items-center space-x-2">
+                        <div className="h-2 w-2 bg-blue-500 rounded-full" />
+                        <span className="text-sm">Radiology AI Updates</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="h-2 w-2 bg-green-500 rounded-full" />
+                        <span className="text-sm">New Treatment Protocols</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="h-2 w-2 bg-purple-500 rounded-full" />
+                        <span className="text-sm">Medical Technology</span>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            </ScrollArea>
           </Card>
         </div>
       </div>
 
-      <div className="col-span-12 lg:col-span-10">
+      <div className="col-span-12 lg:col-span-10 px-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Community Feed</h1>
           <Button onClick={() => setShowCreatePost(true)}>Create Post</Button>
