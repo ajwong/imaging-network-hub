@@ -24,8 +24,9 @@ const Feed = () => {
         .from("posts")
         .select(`
           *,
-          author:profiles!inner(*)
+          author:profiles(*)
         `)
+        .eq('posts.user_id', 'profiles.id')
         .order("created_at", { ascending: false });
 
       if (postsError) {
