@@ -12,32 +12,32 @@ export const Sidebar = () => {
   return (
     <div className="sticky top-16 h-[calc(100vh-4rem)] overflow-hidden">
       <Card className="h-full border-0 rounded-none shadow-none bg-transparent">
-        <ScrollArea className="h-full">
+        <ScrollArea className="h-full px-2">
           <div className="space-y-2">
             <Collapsible open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
-              <div className="flex items-center justify-between px-2 py-2 hover:bg-accent/50 cursor-pointer">
-                <h3 className="text-xs font-medium tracking-wider">CATEGORIES</h3>
+              <div className="flex items-center justify-between py-2 hover:bg-muted/50 cursor-pointer rounded-md px-2">
+                <h3 className="text-xs font-medium tracking-wider text-foreground/70">CATEGORIES</h3>
                 <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-transparent">
                     <ChevronDown 
-                      className="h-3 w-3 transition-transform" 
+                      className="h-3 w-3 transition-transform text-foreground/70" 
                       style={{ transform: isCategoriesOpen ? "rotate(180deg)" : "rotate(0deg)" }} 
                     />
                   </Button>
                 </CollapsibleTrigger>
               </div>
               <CollapsibleContent>
-                <nav className="flex flex-col">
-                  <Button variant="ghost" className="justify-start rounded-none h-8 px-2 font-normal hover:bg-accent/50">
+                <nav className="flex flex-col space-y-1">
+                  <Button variant="ghost" className="justify-start rounded-md h-8 px-2 font-normal hover:bg-muted/50 text-foreground/80">
                     All Posts
                   </Button>
-                  <Button variant="ghost" className="justify-start rounded-none h-8 px-2 font-normal hover:bg-accent/50">
+                  <Button variant="ghost" className="justify-start rounded-md h-8 px-2 font-normal hover:bg-muted/50 text-foreground/80">
                     Clinical Cases
                   </Button>
-                  <Button variant="ghost" className="justify-start rounded-none h-8 px-2 font-normal hover:bg-accent/50">
+                  <Button variant="ghost" className="justify-start rounded-md h-8 px-2 font-normal hover:bg-muted/50 text-foreground/80">
                     Research
                   </Button>
-                  <Button variant="ghost" className="justify-start rounded-none h-8 px-2 font-normal hover:bg-accent/50">
+                  <Button variant="ghost" className="justify-start rounded-md h-8 px-2 font-normal hover:bg-muted/50 text-foreground/80">
                     Discussion
                   </Button>
                 </nav>
@@ -45,30 +45,30 @@ export const Sidebar = () => {
             </Collapsible>
 
             <Collapsible open={isTrendingOpen} onOpenChange={setIsTrendingOpen}>
-              <div className="flex items-center justify-between px-2 py-2 hover:bg-accent/50 cursor-pointer">
-                <h3 className="text-xs font-medium tracking-wider">TRENDING</h3>
+              <div className="flex items-center justify-between py-2 hover:bg-muted/50 cursor-pointer rounded-md px-2">
+                <h3 className="text-xs font-medium tracking-wider text-foreground/70">TRENDING</h3>
                 <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-transparent">
                     <ChevronDown 
-                      className="h-3 w-3 transition-transform" 
+                      className="h-3 w-3 transition-transform text-foreground/70" 
                       style={{ transform: isTrendingOpen ? "rotate(180deg)" : "rotate(0deg)" }} 
                     />
                   </Button>
                 </CollapsibleTrigger>
               </div>
               <CollapsibleContent>
-                <div className="space-y-2 px-2 py-1">
-                  <div className="flex items-center space-x-2 hover:bg-accent/50 p-1 rounded-sm cursor-pointer">
-                    <div className="h-2 w-2 bg-blue-500 rounded-full" />
-                    <span className="text-sm">Radiology AI Updates</span>
+                <div className="space-y-1 px-2">
+                  <div className="flex items-center space-x-2 hover:bg-muted/50 p-2 rounded-md cursor-pointer">
+                    <div className="h-2 w-2 bg-primary rounded-full" />
+                    <span className="text-sm text-foreground/80">Radiology AI Updates</span>
                   </div>
-                  <div className="flex items-center space-x-2 hover:bg-accent/50 p-1 rounded-sm cursor-pointer">
-                    <div className="h-2 w-2 bg-green-500 rounded-full" />
-                    <span className="text-sm">New Treatment Protocols</span>
+                  <div className="flex items-center space-x-2 hover:bg-muted/50 p-2 rounded-md cursor-pointer">
+                    <div className="h-2 w-2 bg-primary rounded-full" />
+                    <span className="text-sm text-foreground/80">New Treatment Protocols</span>
                   </div>
-                  <div className="flex items-center space-x-2 hover:bg-accent/50 p-1 rounded-sm cursor-pointer">
-                    <div className="h-2 w-2 bg-purple-500 rounded-full" />
-                    <span className="text-sm">Medical Technology</span>
+                  <div className="flex items-center space-x-2 hover:bg-muted/50 p-2 rounded-md cursor-pointer">
+                    <div className="h-2 w-2 bg-primary rounded-full" />
+                    <span className="text-sm text-foreground/80">Medical Technology</span>
                   </div>
                 </div>
               </CollapsibleContent>
