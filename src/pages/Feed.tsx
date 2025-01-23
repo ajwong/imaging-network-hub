@@ -12,9 +12,9 @@ import { format } from "date-fns";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-type PostWithProfile = Database['public']['Tables']['posts']['Row'] & {
-  profiles: Database['public']['Tables']['profiles']['Row']
-};
+type Profile = Database['public']['Tables']['profiles']['Row'];
+type Post = Database['public']['Tables']['posts']['Row'];
+type PostWithProfile = Post & { profiles: Profile };
 
 const Feed = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
@@ -26,10 +26,7 @@ const Feed = () => {
     queryFn: async () => {
       const { data: postsData, error: postsError } = await supabase
         .from("posts")
-        .select(`
-          *,
-          profiles:user_id(*)
-        `)
+        .select(`*, profiles:user_id(*)`)
         .order("created_at", { ascending: false });
 
       if (postsError) {
@@ -89,33 +86,36 @@ const Feed = () => {
   }
 
   return (
-    <div className="grid grid-cols-12 gap-6">
+    <div className="grid grid-cols-12">
       <div className="col-span-2 hidden lg:block">
-        <div className="sticky top-16 h-[calc(100vh-4rem)]">
-          <Card className="h-full border-0 rounded-none shadow-none">
+        <div className="sticky top-16 h-[calc(100vh-4rem)] overflow-hidden">
+          <Card className="h-full border-0 rounded-none shadow-none bg-transparent">
             <ScrollArea className="h-full">
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <Collapsible open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
-                  <div className="flex items-center justify-between px-4 py-2 hover:bg-accent cursor-pointer">
-                    <CardTitle className="text-sm font-medium">CATEGORIES</CardTitle>
+                  <div className="flex items-center justify-between px-2 py-2 hover:bg-accent/50 cursor-pointer">
+                    <CardTitle className="text-xs font-medium tracking-wider">CATEGORIES</CardTitle>
                     <CollapsibleTrigger asChild>
                       <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                        <ChevronDown className="h-3 w-3 transition-transform" style={{ transform: isCategoriesOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
+                        <ChevronDown 
+                          className="h-3 w-3 transition-transform" 
+                          style={{ transform: isCategoriesOpen ? "rotate(180deg)" : "rotate(0deg)" }} 
+                        />
                       </Button>
                     </CollapsibleTrigger>
                   </div>
                   <CollapsibleContent>
                     <nav className="flex flex-col">
-                      <Button variant="ghost" className="justify-start rounded-none h-8 px-6 font-normal">
+                      <Button variant="ghost" className="justify-start rounded-none h-8 px-2 font-normal hover:bg-accent/50">
                         All Posts
                       </Button>
-                      <Button variant="ghost" className="justify-start rounded-none h-8 px-6 font-normal">
+                      <Button variant="ghost" className="justify-start rounded-none h-8 px-2 font-normal hover:bg-accent/50">
                         Clinical Cases
                       </Button>
-                      <Button variant="ghost" className="justify-start rounded-none h-8 px-6 font-normal">
+                      <Button variant="ghost" className="justify-start rounded-none h-8 px-2 font-normal hover:bg-accent/50">
                         Research
                       </Button>
-                      <Button variant="ghost" className="justify-start rounded-none h-8 px-6 font-normal">
+                      <Button variant="ghost" className="justify-start rounded-none h-8 px-2 font-normal hover:bg-accent/50">
                         Discussion
                       </Button>
                     </nav>
@@ -123,25 +123,28 @@ const Feed = () => {
                 </Collapsible>
 
                 <Collapsible open={isTrendingOpen} onOpenChange={setIsTrendingOpen}>
-                  <div className="flex items-center justify-between px-4 py-2 hover:bg-accent cursor-pointer">
-                    <CardTitle className="text-sm font-medium">TRENDING</CardTitle>
+                  <div className="flex items-center justify-between px-2 py-2 hover:bg-accent/50 cursor-pointer">
+                    <CardTitle className="text-xs font-medium tracking-wider">TRENDING</CardTitle>
                     <CollapsibleTrigger asChild>
                       <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                        <ChevronDown className="h-3 w-3 transition-transform" style={{ transform: isTrendingOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
+                        <ChevronDown 
+                          className="h-3 w-3 transition-transform" 
+                          style={{ transform: isTrendingOpen ? "rotate(180deg)" : "rotate(0deg)" }} 
+                        />
                       </Button>
                     </CollapsibleTrigger>
                   </div>
                   <CollapsibleContent>
-                    <div className="space-y-2 px-6 py-2">
-                      <div className="flex items-center space-x-2">
+                    <div className="space-y-2 px-2 py-1">
+                      <div className="flex items-center space-x-2 hover:bg-accent/50 p-1 rounded-sm cursor-pointer">
                         <div className="h-2 w-2 bg-blue-500 rounded-full" />
                         <span className="text-sm">Radiology AI Updates</span>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 hover:bg-accent/50 p-1 rounded-sm cursor-pointer">
                         <div className="h-2 w-2 bg-green-500 rounded-full" />
                         <span className="text-sm">New Treatment Protocols</span>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 hover:bg-accent/50 p-1 rounded-sm cursor-pointer">
                         <div className="h-2 w-2 bg-purple-500 rounded-full" />
                         <span className="text-sm">Medical Technology</span>
                       </div>
@@ -155,62 +158,64 @@ const Feed = () => {
       </div>
 
       <div className="col-span-12 lg:col-span-10 px-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Community Feed</h1>
-          <Button onClick={() => setShowCreatePost(true)}>Create Post</Button>
-        </div>
+        <div className="max-w-3xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">Community Feed</h1>
+            <Button onClick={() => setShowCreatePost(true)}>Create Post</Button>
+          </div>
 
-        {showCreatePost && (
-          <CreatePost onClose={() => setShowCreatePost(false)} />
-        )}
+          {showCreatePost && (
+            <CreatePost onClose={() => setShowCreatePost(false)} />
+          )}
 
-        <div className="space-y-4">
-          {posts?.map((post) => (
-            <Card key={post.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl mb-2">{post.title}</CardTitle>
-                    <p className="text-sm text-gray-500">
-                      Posted by {post.profiles?.full_name || "Anonymous"} •{" "}
-                      {format(new Date(post.created_at), "PPp")}
-                    </p>
+          <div className="space-y-4">
+            {posts?.map((post) => (
+              <Card key={post.id} className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-xl mb-2">{post.title}</CardTitle>
+                      <p className="text-sm text-gray-500">
+                        Posted by {post.profiles?.full_name || "Anonymous"} •{" "}
+                        {format(new Date(post.created_at), "PPp")}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700">{post.content}</p>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <div className="flex items-center space-x-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleVote(post.id, true)}
-                    className="hover:bg-green-50"
-                  >
-                    <ThumbsUp className="h-4 w-4 mr-1" />
-                    {post.upvotes}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleVote(post.id, false)}
-                    className="hover:bg-red-50"
-                  >
-                    <ThumbsDown className="h-4 w-4 mr-1" />
-                    {post.downvotes}
-                  </Button>
-                </div>
-                <Link to={`/post/${post.id}`}>
-                  <Button variant="ghost" size="sm">
-                    <MessageSquare className="h-4 w-4 mr-1" />
-                    Discuss
-                  </Button>
-                </Link>
-              </CardFooter>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700">{post.content}</p>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <div className="flex items-center space-x-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleVote(post.id, true)}
+                      className="hover:bg-green-50"
+                    >
+                      <ThumbsUp className="h-4 w-4 mr-1" />
+                      {post.upvotes}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleVote(post.id, false)}
+                      className="hover:bg-red-50"
+                    >
+                      <ThumbsDown className="h-4 w-4 mr-1" />
+                      {post.downvotes}
+                    </Button>
+                  </div>
+                  <Link to={`/post/${post.id}`}>
+                    <Button variant="ghost" size="sm">
+                      <MessageSquare className="h-4 w-4 mr-1" />
+                      Discuss
+                    </Button>
+                  </Link>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </div>
