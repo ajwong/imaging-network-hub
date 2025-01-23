@@ -18,14 +18,17 @@ const Feed = () => {
         .from("posts")
         .select(`
           *,
-          profiles (
+          profiles:user_id (
             username,
             full_name
           )
         `)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching posts:", error);
+        throw error;
+      }
       return data;
     },
   });
