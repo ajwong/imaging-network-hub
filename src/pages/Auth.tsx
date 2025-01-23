@@ -29,7 +29,7 @@ const Auth = () => {
       if (event === 'SIGNED_OUT') {
         setErrorMessage("");
       }
-      if (event === 'SIGNED_UP') {
+      if (event === 'SIGNED_UP' as AuthChangeEvent) {
         // Update user metadata after signup
         supabase.auth.updateUser({
           data: {
