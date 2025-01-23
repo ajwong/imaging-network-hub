@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { AuthError, AuthApiError, AuthChangeEvent } from "@supabase/supabase-js";
+import { AuthApiError, AuthChangeEvent } from "@supabase/supabase-js";
 import SignupFields from "@/components/auth/SignupFields";
-import AuthError from "@/components/auth/AuthError";
+import AuthErrorMessage from "@/components/auth/AuthErrorMessage";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -71,22 +71,17 @@ const Auth = () => {
     return observer;
   };
 
-  const getErrorMessage = (error: AuthError) => {
-    if (error instanceof AuthApiError) {
-      switch (error.code) {
-        case 'invalid_credentials':
-          return 'Invalid email or password. Please check your credentials and try again.';
-        case 'email_not_confirmed':
-          return 'Please verify your email address before signing in.';
-        case 'user_not_found':
-          return 'No user found with these credentials.';
-        case 'invalid_grant':
-          return 'Invalid login credentials.';
-        default:
-          return error.message;
-      }
+  const getErrorMessage = (error: AuthApiError) => {
+    switch (error.status) {
+      case 400:
+        return 'Invalid email or password. Please check your credentials and try again.';
+      case 422:
+        return 'Please verify your email address before signing in.';
+      case 404:
+        return 'No user found with these credentials.';
+      default:
+        return error.message;
     }
-    return error.message;
   };
 
   return (
@@ -95,7 +90,7 @@ const Auth = () => {
         Welcome to RadConnect
       </h1>
       
-      <AuthError message={errorMessage} />
+      <AuthErrorMessage message={errorMessage} />
       
       {isSignUp && (
         <SignupFields
