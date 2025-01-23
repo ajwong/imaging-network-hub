@@ -18,7 +18,7 @@ const Feed = () => {
         .from("posts")
         .select(`
           *,
-          profiles!posts_user_id_fkey (
+          profiles (
             username,
             full_name
           )
