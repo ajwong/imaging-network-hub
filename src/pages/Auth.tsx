@@ -6,16 +6,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { AuthError, AuthApiError, AuthChangeEvent } from "@supabase/supabase-js";
 
 const Auth = () => {
   const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [ahpraNumber, setAhpraNumber] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
       if (event === 'SIGNED_IN' && session) {
         navigate("/");
       }
@@ -28,10 +29,6 @@ const Auth = () => {
       if (event === 'SIGNED_OUT') {
         setErrorMessage("");
       }
-    });
-
-    // Set up auth state change listener
-    supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_UP') {
         // Update user metadata after signup
         supabase.auth.updateUser({
@@ -43,7 +40,30 @@ const Auth = () => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Watch for view changes in Auth UI
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.target instanceof HTMLElement) {
+          const viewText = mutation.target.textContent?.toLowerCase() || '';
+          setIsSignUp(viewText.includes('sign up'));
+        }
+      });
+    });
+
+    // Start observing the auth container for changes
+    const authContainer = document.querySelector('.supabase-auth-ui_ui-container');
+    if (authContainer) {
+      observer.observe(authContainer, { 
+        subtree: true, 
+        childList: true, 
+        characterData: true 
+      });
+    }
+
+    return () => {
+      subscription.unsubscribe();
+      observer.disconnect();
+    };
   }, [navigate, phoneNumber, ahpraNumber]);
 
   const getErrorMessage = (error: AuthError) => {
@@ -74,28 +94,30 @@ const Auth = () => {
         </Alert>
       )}
 
-      <div className="space-y-4 mb-6">
-        <div>
-          <Label htmlFor="phone">Phone Number</Label>
-          <Input
-            id="phone"
-            type="tel"
-            placeholder="Enter your phone number"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-          />
+      {isSignUp && (
+        <div className="space-y-4 mb-6">
+          <div>
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="Enter your phone number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="ahpra">AHPRA Number</Label>
+            <Input
+              id="ahpra"
+              type="text"
+              placeholder="Enter your AHPRA number"
+              value={ahpraNumber}
+              onChange={(e) => setAhpraNumber(e.target.value)}
+            />
+          </div>
         </div>
-        <div>
-          <Label htmlFor="ahpra">AHPRA Number</Label>
-          <Input
-            id="ahpra"
-            type="text"
-            placeholder="Enter your AHPRA number"
-            value={ahpraNumber}
-            onChange={(e) => setAhpraNumber(e.target.value)}
-          />
-        </div>
-      </div>
+      )}
 
       <SupabaseAuth 
         supabaseClient={supabase}
