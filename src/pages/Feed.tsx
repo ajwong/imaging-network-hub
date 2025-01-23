@@ -11,7 +11,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { format } from "date-fns";
 
 type PostWithProfile = Database['public']['Tables']['posts']['Row'] & {
-  profile?: Database['public']['Tables']['profiles']['Row']
+  profiles?: Database['public']['Tables']['profiles']['Row']
 };
 
 const Feed = () => {
@@ -22,7 +22,10 @@ const Feed = () => {
     queryFn: async () => {
       const { data: postsData, error: postsError } = await supabase
         .from("posts")
-        .select("*, profile:profiles(*)")
+        .select(`
+          *,
+          profiles!posts_user_id_fkey(*)
+        `)
         .order("created_at", { ascending: false });
 
       if (postsError) {
@@ -30,7 +33,7 @@ const Feed = () => {
         throw postsError;
       }
 
-      return postsData || [];
+      return postsData as PostWithProfile[] || [];
     },
   });
 
@@ -129,7 +132,7 @@ const Feed = () => {
                   <div>
                     <CardTitle className="text-xl mb-2">{post.title}</CardTitle>
                     <p className="text-sm text-gray-500">
-                      Posted by {post.profile?.full_name || post.profile?.username || "Anonymous"} •{" "}
+                      Posted by {post.profiles?.full_name || post.profiles?.username || "Anonymous"} •{" "}
                       {format(new Date(post.created_at), "PPp")}
                     </p>
                   </div>
