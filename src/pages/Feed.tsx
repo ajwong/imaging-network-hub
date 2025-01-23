@@ -26,7 +26,9 @@ const Feed = () => {
       const { data: postsData, error: postsError } = await supabase
         .from("posts")
         .select(`
-          *
+          *,
+          profiles(*)
+        `)
         .order("created_at", { ascending: false });
 
       if (postsError) {
@@ -97,7 +99,7 @@ const Feed = () => {
                   <CardTitle className="text-lg">Categories</CardTitle>
                   <CollapsibleTrigger asChild>
                     <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                      <ChevronDown className={`h-4 w-4 transition-transform ${isCategoriesOpen ? 'transform rotate-180' : ''}`} />
+                      <ChevronDown className={`h-4 w-4 transition-transform ${isCategoriesOpen ? "transform rotate-180" : ""}`} />
                     </Button>
                   </CollapsibleTrigger>
                 </div>
@@ -118,17 +120,13 @@ const Feed = () => {
                   </nav>
                 </CollapsibleContent>
               </Collapsible>
-            </CardHeader>
-          </Card>
 
-          <Card>
-            <CardHeader className="pb-4">
-              <Collapsible open={isTrendingOpen} onOpenChange={setIsTrendingOpen}>
+              <Collapsible open={isTrendingOpen} onOpenChange={setIsTrendingOpen} className="mt-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">Trending Topics</CardTitle>
                   <CollapsibleTrigger asChild>
                     <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                      <ChevronDown className={`h-4 w-4 transition-transform ${isTrendingOpen ? 'transform rotate-180' : ''}`} />
+                      <ChevronDown className={`h-4 w-4 transition-transform ${isTrendingOpen ? "transform rotate-180" : ""}`} />
                     </Button>
                   </CollapsibleTrigger>
                 </div>
