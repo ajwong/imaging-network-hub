@@ -15,7 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type Post = Database['public']['Tables']['posts']['Row'];
 type PostWithProfile = Post & { 
-  profiles: Profile | null;
+  profile: Profile | null;
 };
 
 const Feed = () => {
@@ -30,7 +30,7 @@ const Feed = () => {
         .from("posts")
         .select(`
           *,
-          profiles:user_id (
+          profile:profiles!posts_user_id_fkey(
             full_name,
             username,
             avatar_url
@@ -185,7 +185,7 @@ const Feed = () => {
                     <div>
                       <CardTitle className="text-xl mb-2">{post.title}</CardTitle>
                       <p className="text-sm text-gray-500">
-                        Posted by {post.profiles?.full_name || "Anonymous"} •{" "}
+                        Posted by {post.profile?.full_name || "Anonymous"} •{" "}
                         {format(new Date(post.created_at), "PPp")}
                       </p>
                     </div>
