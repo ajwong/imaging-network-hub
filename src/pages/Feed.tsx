@@ -14,22 +14,40 @@ const Feed = () => {
   const { data: posts, isLoading } = useQuery({
     queryKey: ["posts"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get posts with user_ids
+      const { data: postsData, error: postsError } = await supabase
         .from("posts")
-        .select(`
-          *,
-          profiles (
-            username,
-            full_name
-          )
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching posts:", error);
-        throw error;
+      if (postsError) {
+        console.error("Error fetching posts:", postsError);
+        throw postsError;
       }
-      return data;
+
+      // Then get profiles for those user_ids
+      if (postsData && postsData.length > 0) {
+        const userIds = [...new Set(postsData.map(post => post.user_id))];
+        const { data: profilesData, error: profilesError } = await supabase
+          .from("profiles")
+          .select("id, username, full_name")
+          .in("id", userIds);
+
+        if (profilesError) {
+          console.error("Error fetching profiles:", profilesError);
+          throw profilesError;
+        }
+
+        // Combine posts with profile data
+        const postsWithProfiles = postsData.map(post => ({
+          ...post,
+          profiles: profilesData?.find(profile => profile.id === post.user_id)
+        }));
+
+        return postsWithProfiles;
+      }
+
+      return postsData || [];
     },
   });
 
