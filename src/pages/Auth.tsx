@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { AuthError, AuthApiError, AuthChangeEvent } from "@supabase/supabase-js";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const Auth = () => {
     });
 
     // Set up auth state change listener
-    supabase.auth.onAuthStateChange((event) => {
+    supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
       if (event === 'SIGNED_UP') {
         // Update user metadata after signup
         supabase.auth.updateUser({
