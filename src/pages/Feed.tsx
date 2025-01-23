@@ -8,6 +8,7 @@ import { CreatePost } from "@/components/feed/CreatePost";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
+import { format } from "date-fns";
 
 type PostWithProfile = Database['public']['Tables']['posts']['Row'] & {
   profile?: Database['public']['Tables']['profiles']['Row']
@@ -118,8 +119,8 @@ const Feed = () => {
                 <div>
                   <CardTitle className="text-xl mb-2">{post.title}</CardTitle>
                   <p className="text-sm text-gray-500">
-                    Posted by {post.profile?.username || "Anonymous"} •{" "}
-                    {new Date(post.created_at).toLocaleDateString()}
+                    Posted by {post.profile?.full_name || post.profile?.username || "Anonymous"} •{" "}
+                    {format(new Date(post.created_at), "PPp")}
                   </p>
                 </div>
               </div>
