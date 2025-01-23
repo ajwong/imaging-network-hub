@@ -30,12 +30,9 @@ const Feed = () => {
         .from("posts")
         .select(`
           *,
-          profile:profiles!posts_user_id_fkey(
-            full_name,
-            username,
-            avatar_url
-          )
+          profile:profiles(*)
         `)
+        .eq('profiles.id', 'user_id')
         .order("created_at", { ascending: false });
 
       if (postsError) {
