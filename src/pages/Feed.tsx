@@ -7,6 +7,11 @@ import { Link } from "react-router-dom";
 import { CreatePost } from "@/components/feed/CreatePost";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { Database } from "@/integrations/supabase/types";
+
+type PostWithProfile = Database['public']['Tables']['posts']['Row'] & {
+  profile?: Database['public']['Tables']['profiles']['Row']
+};
 
 const Feed = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
@@ -30,7 +35,7 @@ const Feed = () => {
         const userIds = [...new Set(postsData.map(post => post.user_id))];
         const { data: profilesData, error: profilesError } = await supabase
           .from("profiles")
-          .select("id, username, full_name")
+          .select("*")
           .in("id", userIds);
 
         if (profilesError) {
@@ -41,7 +46,7 @@ const Feed = () => {
         // Combine posts with profile data
         const postsWithProfiles = postsData.map(post => ({
           ...post,
-          profiles: profilesData?.find(profile => profile.id === post.user_id)
+          profile: profilesData?.find(profile => profile.id === post.user_id)
         }));
 
         return postsWithProfiles;
@@ -106,14 +111,14 @@ const Feed = () => {
       )}
 
       <div className="space-y-6">
-        {posts?.map((post) => (
+        {posts?.map((post: PostWithProfile) => (
           <Card key={post.id}>
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-xl mb-2">{post.title}</CardTitle>
                   <p className="text-sm text-gray-500">
-                    Posted by {post.profiles?.username || "Anonymous"} •{" "}
+                    Posted by {post.profile?.username || "Anonymous"} •{" "}
                     {new Date(post.created_at).toLocaleDateString()}
                   </p>
                 </div>
